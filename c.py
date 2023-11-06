@@ -1,6 +1,7 @@
 import socket
 import subprocess
 import struct
+import logging
 # Configuration
 BUFFER_SIZE = 65507
 MCAST_GRP = '224.1.1.1'
@@ -8,6 +9,7 @@ MCAST_PORT = 5007
 def receive_data(sock, buffer, last_counter,out_order_packets,lost_packets):
     #Abre o VLC para streamar o vídeo
     player = subprocess.Popen(["vlc", "fd://0"], stdin=subprocess.PIPE)
+    log = open("clientLog.log", "w")
     timeout=0
     while True:
         data, _ = sock.recvfrom(BUFFER_SIZE)
@@ -16,6 +18,8 @@ def receive_data(sock, buffer, last_counter,out_order_packets,lost_packets):
         if last_counter == 0:
             last_counter = counter
             player.stdin.write(data[4:])
+            log.write(f"Recebi o Pacote: {counter}\n")
+            log.flush()
         else:
             #Se é o pacote esperado
             if counter == last_counter + 1:
@@ -23,12 +27,16 @@ def receive_data(sock, buffer, last_counter,out_order_packets,lost_packets):
                     out_order_packets+=1
                 timeout=0
                 player.stdin.write(data[4:])
+                log.write(f"Recebi o Pacote: {counter}\n")
+                log.flush()
                 last_counter += 1
                 #Percorre o buffer de pacotes fora de ordem os escrevendo e contabiliza o número de pacotes perdidos
                 while len(buffer)>0:
                         if last_counter+1 in buffer:
                             while last_counter + 1 in buffer:
                                 player.stdin.write(buffer[last_counter + 1])
+                                log.write(f"Recebi o Pacote: {counter}\n")
+                                log.flush()
                                 del buffer[last_counter + 1]
                                 last_counter += 1
                         else:
@@ -44,6 +52,9 @@ def receive_data(sock, buffer, last_counter,out_order_packets,lost_packets):
                         if last_counter+1 in buffer:
                             while last_counter + 1 in buffer:
                                 player.stdin.write(buffer[last_counter + 1])
+                                log.write(f"Recebi o Pacote: {counter}\n")
+                                log.flush()
+
                                 del buffer[last_counter + 1]
                                 last_counter += 1
                         else:
