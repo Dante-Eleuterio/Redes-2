@@ -3,6 +3,7 @@ import subprocess
 import struct
 import logging
 import os
+import time
 # Configuration
 BUFFER_SIZE = 65507
 MCAST_GRP = '224.1.1.1'
@@ -17,6 +18,7 @@ def receive_data(sock, buffer, last_counter,out_order_packets,lost_packets,total
     try:
         while True:
             data, _ = sock.recvfrom(BUFFER_SIZE)
+            # time.sleep(0.5)
             total_packets+=1
             counter = int.from_bytes(data[:4], 'big')
             #Caso seja o primeiro pacote recebido
@@ -43,25 +45,27 @@ def receive_data(sock, buffer, last_counter,out_order_packets,lost_packets,total
                                     player.stdin.write(buffer[last_counter])
                                     del buffer[last_counter]
                             else:
-                                log.write(f"Declarei o Pacote {last_counter} como perdido\n")
+                                log.write(f"Declarei o Pacote {last_counter+1} como perdido\n")
                                 log.flush()
                                 last_counter+=1
                                 lost_packets+=1
                 else:
-                    log.write(f"Recebi o Pacote: {counter} fora de ordem,espera {last_counter}\n")
+                    log.write(f"Recebi o Pacote: {counter} fora de ordem,espera {last_counter+1}\n")
                     log.flush()
-                    if timeout==10:
+                    if timeout==2:
                         #Caso tenha estourado o número de tentativas de receber o pacote certo
                         timeout=0
+                        out_order_packets+=1
+                        buffer[counter] = data[4:]
                         #Percorre o buffer de pacotes fora de ordem os escrevendo e contabiliza o número de pacotes perdidos
                         while len(buffer)>0:
                             if last_counter+1 in buffer:
                                 while last_counter + 1 in buffer:
+                                    player.stdin.write(buffer[last_counter+1])
+                                    del buffer[last_counter+1]
                                     last_counter += 1
-                                    player.stdin.write(buffer[last_counter])
-                                    del buffer[last_counter]
                             else:
-                                log.write(f"Declarei o Pacote {last_counter} como perdido\n")
+                                log.write(f"Declarei o Pacote {last_counter+1} como perdido\n")
                                 log.flush()
                                 last_counter+=1
                                 lost_packets+=1

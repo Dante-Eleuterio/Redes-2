@@ -63,16 +63,16 @@ def main():
     log.flush()
     # Itera sobre o diretório resgatando os nomes dos arquivos .ts
     try:
+        for filename in os.listdir('.'):
+            if filename.endswith(".ts"):
+                files.append(filename)
+        # Coloca os arquivos .ts em ordem
+        files = sorted(files, key=extract_number)
+        # Calcula o bitrate de cada arquivo
+        for f in files:
+            bitrates.append(get_bps(f))
+        # Começa a transmissão
         while True:
-            for filename in os.listdir('.'):
-                if filename.endswith(".ts"):
-                    files.append(filename)
-            # Coloca os arquivos .ts em ordem
-            files = sorted(files, key=extract_number)
-            # Calcula o bitrate de cada arquivo
-            for f in files:
-                bitrates.append(get_bps(f))
-            # Começa a transmissão
             for index, f in enumerate(files):
                 for data in read_video(f):
                     counter += 1
