@@ -4,6 +4,7 @@ import os
 import subprocess
 from moviepy.editor import VideoFileClip
 import re
+import sys
 # Configuração do servidor
 VIDEO = "hls/1080_video0.ts"
 DIR = '/hls'
@@ -47,6 +48,9 @@ def get_bps(filename):
 
 def main():
     # Definição dos sockets multicast
+    timeSet = len(sys.argv)
+    if timeSet>1:
+        sleep_duration= float(sys.argv[1])
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, MULTICAST_TTL)
     counter = 0
@@ -55,28 +59,33 @@ def main():
     bitrates = []
     log = open("../server.log", "w")
     log.write("Iniciando Transmissão\n")
-
+    log.flush()
     # Itera sobre o diretório resgatando os nomes dos arquivos .ts
-    for filename in os.listdir('.'):
-        if filename.endswith(".ts"):
-            files.append(filename)
-    # Coloca os arquivos .ts em ordem
-    files = sorted(files, key=extract_number)
-    # Calcula o bitrate de cada arquivo
-    for f in files:
-        bitrates.append(get_bps(f))
-    # Começa a transmissão
-    for index, f in enumerate(files):
-        for data in read_video(f):
-            counter += 1
-            msg = counter.to_bytes(4, 'big') + data  # Prefix the data with the counter
-            log.write(f"Enviando o Pacote: {counter}\n")
-            log.flush()
-            sock.sendto(msg, (MCAST_GRP, MCAST_PORT))
-            sleep_duration = len(data) / bitrates[index]
-            time.sleep(sleep_duration)
-    log.close()
-    print("Numero de pacotes:", counter)
+    try:
+        while True:
+            for filename in os.listdir('.'):
+                if filename.endswith(".ts"):
+                    files.append(filename)
+            # Coloca os arquivos .ts em ordem
+            files = sorted(files, key=extract_number)
+            # Calcula o bitrate de cada arquivo
+            for f in files:
+                bitrates.append(get_bps(f))
+            # Começa a transmissão
+                for index, f in enumerate(files):
+                    for data in read_video(f):
+                        counter += 1
+                        msg = counter.to_bytes(4, 'big') + data  # Prefix the data with the counter
+                        log.write(f"Enviando o Pacote: {counter}\n")
+                        log.flush()
+                        sock.sendto(msg, (MCAST_GRP, MCAST_PORT))
+                        if timeSet<2:
+                            sleep_duration = len(data) / bitrates[index]
+                        time.sleep(sleep_duration)
+    except KeyboardInterrupt:
+        log.write(f"Transmissão terminada com {counter} pacotes enviados\n")
+        log.flush()
+        log.close()
 
 if __name__ == '__main__':
     main()
