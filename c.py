@@ -10,7 +10,7 @@ MCAST_GRP = '224.1.1.1'
 MCAST_PORT = 5007
 def receive_data(sock, buffer, last_counter,out_order_packets,lost_packets,total_packets):
     #Abre o VLC para streamar o vídeo
-    player = subprocess.Popen(["vlc", "fd://0"], stdin=subprocess.PIPE)
+    player = subprocess.Popen(["vlc", "fd://0"], stdin=subprocess.PIPE,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     pid = os.getpid()
     log = open("clientLog" + str(pid) + ".log", "w")
     timeout=0

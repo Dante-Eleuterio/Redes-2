@@ -49,7 +49,6 @@ def get_bps(filename):
 def main():
     # Definição dos sockets multicast
     timeSet = len(sys.argv)
-    print(timeSet)
     if timeSet>1:
         sleep_duration= float(sys.argv[1])
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
