@@ -49,6 +49,7 @@ def get_bps(filename):
 def main():
     # Definição dos sockets multicast
     timeSet = len(sys.argv)
+    print(timeSet)
     if timeSet>1:
         sleep_duration= float(sys.argv[1])
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -72,16 +73,16 @@ def main():
             for f in files:
                 bitrates.append(get_bps(f))
             # Começa a transmissão
-                for index, f in enumerate(files):
-                    for data in read_video(f):
-                        counter += 1
-                        msg = counter.to_bytes(4, 'big') + data  # Prefix the data with the counter
-                        log.write(f"Enviando o Pacote: {counter}\n")
-                        log.flush()
-                        sock.sendto(msg, (MCAST_GRP, MCAST_PORT))
-                        if timeSet<2:
-                            sleep_duration = len(data) / bitrates[index]
-                        time.sleep(sleep_duration)
+            for index, f in enumerate(files):
+                for data in read_video(f):
+                    counter += 1
+                    msg = counter.to_bytes(4, 'big') + data  # Prefix the data with the counter
+                    log.write(f"Enviando o Pacote: {counter}\n")
+                    log.flush()
+                    sock.sendto(msg, (MCAST_GRP, MCAST_PORT))
+                    if timeSet<2:
+                        sleep_duration = len(data) / bitrates[index]
+                    time.sleep(sleep_duration)
     except KeyboardInterrupt:
         log.write(f"Transmissão terminada com {counter} pacotes enviados\n")
         log.flush()

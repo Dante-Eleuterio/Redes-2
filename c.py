@@ -39,28 +39,27 @@ def receive_data(sock, buffer, last_counter,out_order_packets,lost_packets,total
                     while len(buffer)>0:
                             if last_counter+1 in buffer:
                                 while last_counter + 1 in buffer:
-                                    player.stdin.write(buffer[last_counter + 1])
-                                    del buffer[last_counter + 1]
                                     last_counter += 1
+                                    player.stdin.write(buffer[last_counter])
+                                    del buffer[last_counter]
                             else:
                                 log.write(f"Declarei o Pacote {last_counter} como perdido\n")
                                 log.flush()
                                 last_counter+=1
                                 lost_packets+=1
                 else:
-                    #Caso tenha estourado o número de tentativas de receber o pacote certo
-                    log.write(f"Recebi o Pacote: {counter} fora de ordem\n")
+                    log.write(f"Recebi o Pacote: {counter} fora de ordem,espera {last_counter}\n")
                     log.flush()
                     if timeout==10:
+                        #Caso tenha estourado o número de tentativas de receber o pacote certo
                         timeout=0
-                        lost_packets+=1
                         #Percorre o buffer de pacotes fora de ordem os escrevendo e contabiliza o número de pacotes perdidos
                         while len(buffer)>0:
                             if last_counter+1 in buffer:
                                 while last_counter + 1 in buffer:
-                                    player.stdin.write(buffer[last_counter + 1])
-                                    del buffer[last_counter + 1]
                                     last_counter += 1
+                                    player.stdin.write(buffer[last_counter])
+                                    del buffer[last_counter]
                             else:
                                 log.write(f"Declarei o Pacote {last_counter} como perdido\n")
                                 log.flush()
