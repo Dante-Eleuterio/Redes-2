@@ -28,3 +28,4 @@ utilizar do comando BASH "ffmpeg -i input.mp4 -profile:v baseline -level 3.0 -s 
 alterando "input.mp4" pelo vídeo de input e "hls/index.m3u8" pelo diretório e nome do arquivo principal m3u8 que se deseja gerar.
 Após isso deve-se alterar a variável global "DIR" e incluir o diretório no qual se encontram os arquivos ts.
 Uma interface para que o usuário mude a transmissão não foi considerada de grande importância dados os objetivos do trabalho e dessa forma não foi implementada. 
+    
