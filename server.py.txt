@@ -6,7 +6,6 @@ from moviepy.editor import VideoFileClip
 import re
 import sys
 # Configuração do servidor
-DIR = './hls'
 BUFFER_SIZE = 65507 
 MCAST_GRP = '224.1.1.1'  # IP Multicast
 MCAST_PORT = 5007  # Porta Multicast
@@ -14,7 +13,7 @@ MULTICAST_TTL = 2
 
 # Função para ordenar os arquivos ts
 def extract_number(filename):
-    parts = filename.split("video")
+    parts = filename.split("index")
     if len(parts) > 1:
         number = int(parts[1].split(".")[0])
         return number
@@ -53,10 +52,26 @@ def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, MULTICAST_TTL)
     counter = 0
-    os.chdir(DIR)
     files = []
     bitrates = []
+    print("Indique o nome do arquivo a ser transmitido")
+    name = input()
+    id = str(os.getpid()) 
+    dir= "hls"+name
+    try:
+        os.mkdir(dir)
+    except:
+        NotImplemented
+    print("----------------------------------------------------------------------------------\n\n")
+    print("Convertendo o vídeo,favor esperar")
+    print("\n\n----------------------------------------------------------------------------------")
+
+    os.system("ffmpeg -i " + str(name) +" -hide_banner -loglevel error -profile:v baseline -level 3.0 -s 640x360 -start_number 0 -hls_time 10 -hls_list_size 0 -f hls "+dir+"/index.m3u8")    
+    os.chdir(dir)
     log = open("../server.log", "w")
+    print("----------------------------------------------------------------------------------\n\n")
+    print("Iniciando Transmissão")
+    print("\n\n----------------------------------------------------------------------------------")
     log.write("Iniciando Transmissão\n")
     log.flush()
     # Itera sobre o diretório resgatando os nomes dos arquivos .ts

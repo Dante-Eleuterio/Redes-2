@@ -19,13 +19,3 @@ o seu PID do SO como identificador único, contendo as operações efetudas. O l
 servidor mantém salvo os pacotes que foram enviados e o log do cliente salva os pacotes
 recebidos em ordem, os fora de ordem e os pacotes que foram definidos como perdidos e ao 
 final escreve o total desses dados.
-
-Considerações
-No caso exemplo foi escolhido o videoclipe da música "Never Gonna Give you Up" 
-do cantor Rick Astely porém o código permite que qualquer vídeo seja transferido, 
-conquanto que ele esteja no formato HLS.Para efetuar tal mudança é preciso primeiramente
-utilizar do comando BASH "ffmpeg -i input.mp4 -profile:v baseline -level 3.0 -s 640x360 -start_number 0 -hls_time 10 -hls_list_size 0 -f hls hls/index.m3u8"
-alterando "input.mp4" pelo vídeo de input e "hls/index.m3u8" pelo diretório e nome do arquivo principal m3u8 que se deseja gerar.
-Após isso deve-se alterar a variável global "DIR" e incluir o diretório no qual se encontram os arquivos ts.
-Uma interface para que o usuário mude a transmissão não foi considerada de grande importância dados os objetivos do trabalho e dessa forma não foi implementada. 
-    
