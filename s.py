@@ -6,8 +6,7 @@ from moviepy.editor import VideoFileClip
 import re
 import sys
 # Configuração do servidor
-VIDEO = "hls/1080_video0.ts"
-DIR = '/hls'
+DIR = './hls'
 BUFFER_SIZE = 65507 
 MCAST_GRP = '224.1.1.1'  # IP Multicast
 MCAST_PORT = 5007  # Porta Multicast
@@ -54,7 +53,7 @@ def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, MULTICAST_TTL)
     counter = 0
-    os.chdir("./hls")
+    os.chdir(DIR)
     files = []
     bitrates = []
     log = open("../server.log", "w")

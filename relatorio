@@ -1,0 +1,30 @@
+Foi criado um servidor que efetua uma transmissão UDP multicasting em looping
+de um vídeo convertido para formato HLS em pacotes que contem dois campos: dados
+e número da sequência. Esse formato de vídeo foi escolhido por permitir quebrar o 
+vídeo em vários pedaços menores e assim facilitar o envio e permitir que os 
+clientes assistam à transmissão mesmo que percam o seu início.
+
+Os clientes recebem os pacotes pelo canal multicasting e passam a exibir a 
+transmissão por meio do VLC a partir do primeiro frame de vídeo recebido e 
+permitindo múltiplas exibições para múltiplos clientes. 
+
+Para lidar com pacotes fora de ordem ou perdidos, o cliente cria um buffer e 
+guarda de maneira ordenado os pacotes foras de ordem recebidos subsequentes ao 
+pacote da sequência esperada. Se 3 pacotes fora de ordem forem recebidos e o pacote
+esperado ainda não houver chegado, o cliente marca esse pacote como perdido e desiste
+de recebe-lo e então percorre o buffer de pacotes fora de ordem salvando-os em disco.
+
+Tanto o cliente e o servidor mantém arquivos de logs salvos, tendo o log do cliente
+o seu PID do SO como identificador único, contendo as operações efetudas. O log do
+servidor mantém salvo os pacotes que foram enviados e o log do cliente salva os pacotes
+recebidos em ordem, os fora de ordem e os pacotes que foram definidos como perdidos e ao 
+final escreve o total desses dados.
+
+Considerações
+No caso exemplo foi escolhido o videoclipe da música "Never Gonna Give you Up" 
+do cantor Rick Astely porém o código permite que qualquer vídeo seja transferido, 
+conquanto que ele esteja no formato HLS.Para efetuar tal mudança é preciso primeiramente
+utilizar do comando BASH "ffmpeg -i input.mp4 -profile:v baseline -level 3.0 -s 640x360 -start_number 0 -hls_time 10 -hls_list_size 0 -f hls hls/index.m3u8"
+alterando "input.mp4" pelo vídeo de input e "hls/index.m3u8" pelo diretório e nome do arquivo principal m3u8 que se deseja gerar.
+Após isso deve-se alterar a variável global "DIR" e incluir o diretório no qual se encontram os arquivos ts.
+Uma interface para que o usuário mude a transmissão não foi considerada de grande importância dados os objetivos do trabalho e dessa forma não foi implementada. 
